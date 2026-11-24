@@ -45,6 +45,7 @@ python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-fontconfig-runtime.py
 
 # Substituir controles genericos por barra editorial e deixar pt-BR no motor e no shell.
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-editorial-ux.py"
+python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-zoom-coalescing.py"
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py"
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-variable-inventory.py"
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py"
