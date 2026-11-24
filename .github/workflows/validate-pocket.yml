@@ -1,0 +1,77 @@
+name: Pocket - Conferir patches sem credenciais
+
+on:
+  push:
+    paths:
+      - 'pocket/experiments/libreon-engine-lab/compact-ui.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-variable-inventory.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-native-command-probe.py'
+      - 'pocket/experiments/libreon-engine-lab/build-upstream.sh'
+      - '.github/workflows/pocket-editorial-ui-check.yml'
+  pull_request:
+    paths:
+      - 'pocket/experiments/libreon-engine-lab/compact-ui.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
+      - '.github/workflows/pocket-editorial-ui-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar Python e sintaxe shell
+        run: |
+          python3 -m py_compile pocket/experiments/libreon-engine-lab/*.py
+          bash -n pocket/experiments/libreon-engine-lab/build-upstream.sh
+      - name: Reproduzir checkout livre fixado
+        run: |
+          git clone --depth=1 --branch v0.9.5-beta.5 https://github.com/jainiakhil/Libreon.git upstream-libreon
+          test "$(git -C upstream-libreon rev-parse HEAD)" = f1f8c95c7b2dfd8a26ccdbd5e17883b6c7cbfc09
+          mkdir -p upstream-libreon/third_party/lok/assets/dist
+          printf '/* mock asset Collabora */\n' > upstream-libreon/third_party/lok/assets/dist/branding.css
+      - name: Aplicar patches na ordem do build Android
+        run: |
+          cd upstream-libreon
+          python3 ../pocket/experiments/libreon-engine-lab/compact-ui.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-odt-style-selector.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-fields-indexes.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-branding.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-fontconfig-runtime.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-editorial-ux.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-variable-inventory.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-native-command-probe.py
+      - name: Conferir idioma, barra nativa e ponte UNO
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('upstream-libreon')
+          doc = (p/'engine-office/src/main/java/dev/offlineoffice/office/OfficeDocument.kt').read_text()
+          ui = (p/'app/src/main/java/dev/offlineoffice/app/ui/AppRoot.kt').read_text()
+          css = (p/'third_party/lok/assets/dist/branding.css').read_text()
+          assert '.appendQueryParameter("lang", "pt-BR")' in doc
+          assert 'POCKET_QUICK_FORMAT' in (p/'engine-office/src/main/java/dev/offlineoffice/office/OfficeProtocol.kt').read_text()
+          for cmd in ('.uno:Bold', '.uno:Italic', '.uno:SmallCaps', '.uno:LeftPara', '.uno:CenterPara', '.uno:RightPara', '.uno:JustifyPara'):
+              assert cmd in doc, cmd
+          for label in ('Estilos', 'Variáveis', 'Sumário', 'Versalete', 'Alinhar', 'Atualizar campos e sumário?'):
+              assert 'Text("'+label+'"' in ui, label
+          assert 'bottomBar = {' in ui
+          assert 'body[data-docType=\'text\'] #toolbar-down' in css
+          assert 'Text("Settings")' not in ui
+          assert 'Text("Configurações")' in ui
+          for identifier in ('SaveResult.Saved', 'confirmCloseAll', 'onCloseAll', 'closeAll()'):
+              assert identifier in ui, identifier
+          assert 'confirmCloseTodos' not in ui
+          assert 'height(56.dp)' in ui
+          print('UX pt-BR e pontes UNO verificadas sem instalar Android.')
+          PY
