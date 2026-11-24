@@ -1,19 +1,20 @@
-name: Pocket - APK de prévia pública sem secrets
+name: Pocket - APK de prévia zoom A/B sem secrets
 
 on:
-  # Gera a primeira prévia ao atualizar este workflow na main.
-  # Alterações futuras de código são compiladas pelo acionamento manual.
+  # Build comparativo somente da branch de zoom; a baseline continua na main.
   push:
-    branches: [main]
+    branches: [feat/viewport-navigation-20261124]
     paths:
       - '.github/workflows/build-preview.yml'
+      - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-zoom-coalescing.py'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pocket-preview-public
+  group: pocket-preview-zoom-ab
   cancel-in-progress: true
 
 jobs:
@@ -50,6 +51,7 @@ jobs:
       - name: Compilar prévia sem assinatura privada
         env:
           POCKET_BUILD_MODE: preview
+          POCKET_PREVIEW_FLAVOR: zoom
         run: bash pocket/experiments/libreon-engine-lab/build-upstream.sh
       - name: Verificar identidade separada e assinatura debug
         shell: bash
@@ -59,14 +61,14 @@ jobs:
           test -s "$APK"
           SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --print-certs "$APK"
-          "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket.preview'"
+          "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket.preview.zoom'"
           ! "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket'"
           mkdir -p pocket-preview-output
-          cp "$APK" pocket-preview-output/LadyWriter-Pocket-PREVIEW-arm64.apk
+          cp "$APK" pocket-preview-output/LadyWriter-Pocket-ZOOM-A-B-arm64.apk
           sha256sum pocket-preview-output/*.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: LadyWriter-Pocket-PREVIEW-nao-atualiza-app
+          name: LadyWriter-Pocket-ZOOM-A-B-nao-atualiza-app
           path: pocket-preview-output/*.apk
           retention-days: 5
           if-no-files-found: error

@@ -5,6 +5,7 @@ on:
     paths:
       - 'pocket/experiments/libreon-engine-lab/compact-ui.py'
       - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-zoom-coalescing.py'
       - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
       - 'pocket/experiments/libreon-engine-lab/patch-variable-inventory.py'
       - 'pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py'
@@ -17,6 +18,7 @@ on:
     paths:
       - 'pocket/experiments/libreon-engine-lab/compact-ui.py'
       - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-zoom-coalescing.py'
       - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
       - '.github/workflows/validate-pocket.yml'
   workflow_dispatch:
@@ -50,6 +52,7 @@ jobs:
           python3 ../pocket/experiments/libreon-engine-lab/patch-branding.py
           python3 ../pocket/experiments/libreon-engine-lab/patch-fontconfig-runtime.py
           python3 ../pocket/experiments/libreon-engine-lab/patch-editorial-ux.py
+          python3 ../pocket/experiments/libreon-engine-lab/patch-zoom-coalescing.py
           python3 ../pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py
           python3 ../pocket/experiments/libreon-engine-lab/patch-variable-inventory.py
           python3 ../pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py
@@ -63,6 +66,8 @@ jobs:
           ui = (p/'app/src/main/java/dev/offlineoffice/app/ui/AppRoot.kt').read_text()
           css = (p/'third_party/lok/assets/dist/branding.css').read_text()
           assert '.appendQueryParameter("lang", "pt-BR")' in doc
+          assert 'scheduledZoom = requestAnimationFrame' in doc
+          assert 'zoomStep(-1)' in doc and 'zoomStep(1)' in doc
           assert 'POCKET_QUICK_FORMAT' in (p/'engine-office/src/main/java/dev/offlineoffice/office/OfficeProtocol.kt').read_text()
           for cmd in ('.uno:Bold', '.uno:Italic', '.uno:SmallCaps', '.uno:LeftPara', '.uno:CenterPara', '.uno:RightPara', '.uno:JustifyPara'):
               assert cmd in doc, cmd
