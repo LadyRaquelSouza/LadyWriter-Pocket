@@ -69,6 +69,12 @@ jobs:
           for label in ('Estilos', 'Variáveis', 'Sumário', 'Versalete', 'Alinhar', 'Atualizar campos e sumário?'):
               assert 'Text("'+label+'"' in ui, label
           assert 'bottomBar = {' in ui
+          assert 'BackHandler(enabled = active != null && !pocketImeVisible)' in ui
+          assert 'BackHandler(enabled = fullScreen && !pocketImeVisible)' in ui
+          assert 'BackHandler(enabled = pocketImeVisible && active != null)' in ui
+          assert 'Quebra' in ui and 'de página' in ui
+          assert '"pagebreak" -> ".uno:InsertPagebreak"' in doc
+          assert '".uno:InsertPagebreak"' in doc
           assert 'body[data-docType=\'text\'] #toolbar-down' in css
           assert 'Text("Settings")' not in ui
           assert 'Text("Configurações")' in ui
