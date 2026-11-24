@@ -10,13 +10,13 @@ on:
       - 'pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py'
       - 'pocket/experiments/libreon-engine-lab/patch-native-command-probe.py'
       - 'pocket/experiments/libreon-engine-lab/build-upstream.sh'
-      - '.github/workflows/pocket-editorial-ui-check.yml'
+      - '.github/workflows/validate-pocket.yml'
   pull_request:
     paths:
       - 'pocket/experiments/libreon-engine-lab/compact-ui.py'
       - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
       - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
-      - '.github/workflows/pocket-editorial-ui-check.yml'
+      - '.github/workflows/validate-pocket.yml'
   workflow_dispatch:
 
 permissions:
