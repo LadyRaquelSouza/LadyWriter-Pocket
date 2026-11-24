@@ -35,6 +35,18 @@ jobs:
           python3 -m py_compile pocket/experiments/libreon-engine-lab/*.py
           bash -n pocket/experiments/libreon-engine-lab/prepare-upstream.sh
           bash -n pocket/experiments/libreon-engine-lab/build-upstream.sh
+      - name: Validar ODT com variáveis e campos de usuário fictícios
+        run: |
+          python3 pocket/tests/generate-variable-fixture.py /tmp/odt-ficticio.odt
+          python3 - <<'PY'
+          from xml.etree import ElementTree as ET
+          from zipfile import ZipFile
+          with ZipFile('/tmp/odt-ficticio.odt') as z:
+              root = ET.fromstring(z.read('content.xml'))
+          n = 'urn:oasis:names:tc:opendocument:xmlns:text:1.0'
+          assert len(list(root.iter('{'+n+'}user-field-decl'))) == 1
+          assert len(list(root.iter('{'+n+'}user-field-get'))) == 1
+          PY
       - name: Reproduzir checkout livre fixado
         run: |
           git clone --depth=1 --branch v0.9.5-beta.5 https://github.com/jainiakhil/Libreon.git upstream-libreon
@@ -73,6 +85,12 @@ jobs:
           assert 'BackHandler(enabled = fullScreen && !pocketImeVisible)' in ui
           assert 'BackHandler(enabled = pocketImeVisible && active != null)' in ui
           assert 'Quebra' in ui and 'de página' in ui
+          assert 'if (!pocketBarCollapsed)' in ui
+          assert 'if (!pocketImeVisible) {' in ui
+          assert '"Variáveis"' in ui
+          inventory = (Path('pocket/experiments/libreon-engine-lab/patch-variable-inventory.py')).read_text()
+          for field_type in ('variable-decl', 'variable-set', 'variable-get', 'variable-input', 'user-field-decl', 'user-field-get', 'user-field-input'):
+              assert field_type in inventory, field_type
           assert '"pagebreak" -> ".uno:InsertPagebreak"' in doc
           assert '".uno:InsertPagebreak"' in doc
           assert 'body[data-docType=\'text\'] #toolbar-down' in css
