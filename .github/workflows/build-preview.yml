@@ -1,0 +1,62 @@
+name: Pocket - APK de prévia pública sem secrets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocket-preview-public
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: APK Android arm64 de prévia (não atualiza o Pocket estável)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Preparar Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDK_MANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDK_MANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          "$SDK_MANAGER" --sdk_root="$SDK_ROOT" --install \
+            'platforms;android-36' 'build-tools;36.0.0' \
+            'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Preparar fonte e motor Libreon de origem pública, verificados
+        run: bash pocket/experiments/libreon-engine-lab/prepare-upstream.sh
+      - name: Incorporar fontes redistribuíveis verificadas e licenças OFL
+        run: bash pocket/experiments/libreon-engine-lab/prepare-fonts-arapey.sh
+      - name: Compilar prévia sem assinatura privada
+        env:
+          POCKET_BUILD_MODE: preview
+        run: bash pocket/experiments/libreon-engine-lab/build-upstream.sh
+      - name: Verificar identidade separada e assinatura debug
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find upstream-libreon/app/build/outputs/apk/debug -maxdepth 1 -name '*arm64*.apk' | head -n 1)"
+          test -s "$APK"
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --print-certs "$APK"
+          "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket.preview'"
+          ! "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket'"
+          mkdir -p pocket-preview-output
+          cp "$APK" pocket-preview-output/LadyWriter-Pocket-PREVIEW-arm64.apk
+          sha256sum pocket-preview-output/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LadyWriter-Pocket-PREVIEW-nao-atualiza-app
+          path: pocket-preview-output/*.apk
+          retention-days: 5
+          if-no-files-found: error

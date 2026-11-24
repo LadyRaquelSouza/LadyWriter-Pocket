@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LadyWriter Pocket: ponta de caneta e folhas discretas. Arte original. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Duas paginas apenas sugeridas, subordinadas a pena. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#9477B8"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M20,76 Q33,72 46,81 M88,76 Q75,72 62,81"/>
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#B8A1DF"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:pathData="M23,82 Q36,79 46,86 M85,82 Q72,79 62,86"/>
+    <!-- Ponta de pena macica, afilada, com ombros facetados. -->
+    <path
+        android:fillColor="#E8D8F6"
+        android:pathData="M41,24 Q54,20 67,24 L74,39 Q72,56 64,72 L54,90 L44,72 Q36,56 34,39 Z"/>
+    <path
+        android:fillColor="#B8A1DF"
+        android:pathData="M54,23 Q62,22 67,24 L74,39 Q72,56 64,72 L54,90 L54,56 Z"/>
+    <!-- Faceta metalica quente, em dialogo com o Atelie Editorial. -->
+    <path
+        android:fillColor="#D9B58E"
+        android:pathData="M41,24 Q54,20 67,24 L65,31 Q54,28 43,31 Z"/>
+    <!-- Respiro do alimentador e fenda. -->
+    <path
+        android:fillColor="#251831"
+        android:pathData="M54,44 A5,5 0,1 1,54 54 A5,5 0,1 1,54 44 Z"/>
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#251831"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M54,53 L54,84"/>
+    <!-- Fios de luz que desenham o relevo da ponta. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FCF5FF"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:pathData="M40,40 Q40,54 48,68"/>
+</vector>
