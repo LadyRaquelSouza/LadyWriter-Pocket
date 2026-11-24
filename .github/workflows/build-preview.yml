@@ -1,19 +1,22 @@
-name: Pocket - APK de prévia pública sem secrets
+name: Pocket - APK UX teclado e quebra de página
 
 on:
-  # Gera a primeira prévia ao atualizar este workflow na main.
-  # Alterações futuras de código são compiladas pelo acionamento manual.
+  # Ensaios de UX somente na branch dedicada, sem secrets.
   push:
-    branches: [main]
+    branches: [fix/ime-pagebreak-ptbr-20261124]
     paths:
       - '.github/workflows/build-preview.yml'
+      - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-variable-inventory.py'
+      - 'pocket/tests/generate-variable-fixture.py'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pocket-preview-public
+  group: pocket-preview-ux-ime
   cancel-in-progress: true
 
 jobs:
@@ -50,6 +53,7 @@ jobs:
       - name: Compilar prévia sem assinatura privada
         env:
           POCKET_BUILD_MODE: preview
+          POCKET_PREVIEW_FLAVOR: ux
         run: bash pocket/experiments/libreon-engine-lab/build-upstream.sh
       - name: Verificar identidade separada e assinatura debug
         shell: bash
@@ -59,14 +63,14 @@ jobs:
           test -s "$APK"
           SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --print-certs "$APK"
-          "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket.preview'"
+          "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket.preview.ux'"
           ! "$SDK_ROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "name='com.ladyrachelsouza.ladywriter.pocket'"
           mkdir -p pocket-preview-output
-          cp "$APK" pocket-preview-output/LadyWriter-Pocket-PREVIEW-arm64.apk
+          cp "$APK" pocket-preview-output/LadyWriter-Pocket-UX-arm64.apk
           sha256sum pocket-preview-output/*.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: LadyWriter-Pocket-PREVIEW-nao-atualiza-app
+          name: LadyWriter-Pocket-UX-nao-atualiza-app
           path: pocket-preview-output/*.apk
           retention-days: 5
           if-no-files-found: error

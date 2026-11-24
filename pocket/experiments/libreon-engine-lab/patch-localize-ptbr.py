@@ -13,7 +13,20 @@ document = ROOT / "engine-office/src/main/java/dev/offlineoffice/office/OfficeDo
 source = document.read_text(encoding="utf-8")
 needle = '.appendQueryParameter("lang", "en-US")'
 assert source.count(needle) == 1, "Idioma do Collabora foi alterado no upstream"
-document.write_text(source.replace(needle, '.appendQueryParameter("lang", "pt-BR")'), encoding="utf-8")
+# Os controles de zoom são injetados pelo próprio Libreon em JavaScript,
+# portanto não aparecem na lista de Text("...") do Compose.
+zoom_labels = {
+    "'Fit width'": "'Ajustar à largura'",
+    "'Zoom out'": "'Diminuir zoom'",
+    "'Zoom in'": "'Aumentar zoom'",
+    "'. Choose a zoom level'": "'. Escolher nível de zoom'",
+}
+source = source.replace(needle, '.appendQueryParameter("lang", "pt-BR")', 1)
+for english, translated in zoom_labels.items():
+    if source.count(english) != 1:
+        raise SystemExit(f"Controle de zoom mudou: {english}")
+    source = source.replace(english, translated, 1)
+document.write_text(source, encoding="utf-8")
 
 translations = {
     "Settings": "Configurações",

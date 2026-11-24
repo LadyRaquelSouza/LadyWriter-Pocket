@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Catálogo somente leitura dos campos ODT. Não modifica XML nem supõe motor UNO editável."""
+"""Catálogo de variáveis e campos de usuário ODT, somente leitura e sem regravação."""
 from pathlib import Path
 
 root=Path.cwd()
@@ -50,16 +50,26 @@ object PocketOdtVariables {
                     while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                         if (parser.eventType == XmlPullParser.START_TAG &&
                             parser.namespace == TEXT &&
-                            (parser.name == "variable-set" || parser.name == "variable-get")) {
+                            parser.name in setOf(
+                                "variable-decl", "variable-set", "variable-get", "variable-input",
+                                "user-field-decl", "user-field-get", "user-field-input"
+                            )) {
                             val name = parser.getAttributeValue(TEXT, "name")
                             if (!name.isNullOrBlank()) {
                                 count++
-                                val kind = if (parser.name == "variable-set") "Definição" else "Exibição"
+                                val kind = when (parser.name) {
+                                    "variable-decl", "user-field-decl" -> "Declaração"
+                                    "variable-set" -> "Definição"
+                                    "variable-input", "user-field-input" -> "Entrada"
+                                    else -> "Exibição"
+                                }
                                 val hidden = parser.getAttributeValue(TEXT, "display") == "none"
                                 val stored = parser.getAttributeValue(OFFICE, "string-value")
                                     ?: parser.getAttributeValue(OFFICE, "value")
-                                // variable-get exibe o valor no corpo XML, não em office:string-value.
-                                val displayText = parser.nextText()
+                                // Declarações têm atributos e geralmente não possuem texto.
+                                // Para os campos exibidos, ler o texto sem modificar o ODT.
+                                val displayText = if (parser.name.endsWith("-decl"))
+                                    "" else parser.nextText()
                                 val value = stored ?: displayText
                                 result.add(Entry(name, kind, value, hidden, source, count))
                             }

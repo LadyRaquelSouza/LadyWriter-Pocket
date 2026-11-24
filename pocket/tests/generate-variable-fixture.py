@@ -28,12 +28,21 @@ def make(path):
     text=e(body,"office","text")
     decls=e(text,"text","variable-decls")
     e(decls,"text","variable-decl",{"office:value-type":"string","text:name":"DataNarrativa"})
+    # Campo de usuário ODF: usado em Writer, antes invisível ao inventário Pocket.
+    user_decls=e(text,"text","user-field-decls")
+    e(user_decls,"text","user-field-decl",{
+        "text:name":"NomeExemplo","office:value-type":"string",
+        "office:string-value":"Pessoa Fictícia"
+    })
     samples=["Dia Um • Exemplo fictício","Dia Dois • Exemplo fictício"]
     for i,val in enumerate(samples):
         heading=e(text,"text","h",{"text:outline-level":"1",**({"text:style-name":"Page1"} if i else {})})
         e(heading,"text","variable-set",{"text:name":"DataNarrativa","text:display":"none","office:value-type":"string","office:string-value":val})
         heading[-1].tail="Capítulo "+str(i+1)
-        e(text,"text","p",text="Texto artificial, criado exclusivamente para validar campos ODT.")
+        paragraph=e(text,"text","p",text="Texto artificial, criado exclusivamente para validar campos ODT. ")
+        if i==0:
+            get=e(paragraph,"text","user-field-get",{"text:name":"NomeExemplo"})
+            get.text="Pessoa Fictícia"
     styles=ET.Element(q("office","document-styles"),{q("office","version"):"1.2"})
     autos=e(styles,"office","automatic-styles")
     page=e(autos,"style","page-layout",{"style:name":"PM1"})
@@ -54,8 +63,11 @@ def make(path):
         content=ET.fromstring(z.read("content.xml"))
         heads=ET.fromstring(z.read("styles.xml"))
         definitions=list(content.iter(q("text","variable-set")))
+        userdefs=list(content.iter(q("text","user-field-decl")))
+        usergets=list(content.iter(q("text","user-field-get")))
         references=list(heads.iter(q("text","variable-get")))
         assert len(definitions)==2 and len(references)==1
+        assert len(userdefs)==1 and len(usergets)==1
         assert all(x.attrib[q("text","display")]=="none" for x in definitions)
         assert [x.attrib[q("office","string-value")] for x in definitions]==samples
     print("Fixture ODT gerada e validada estruturalmente:",path)
