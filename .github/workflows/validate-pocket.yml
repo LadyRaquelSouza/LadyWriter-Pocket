@@ -10,6 +10,8 @@ on:
       - 'pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py'
       - 'pocket/experiments/libreon-engine-lab/patch-native-command-probe.py'
       - 'pocket/experiments/libreon-engine-lab/build-upstream.sh'
+      - 'pocket/experiments/libreon-engine-lab/patch-preview-identity.py'
+      - '.github/workflows/build-preview.yml'
       - '.github/workflows/validate-pocket.yml'
   pull_request:
     paths:
@@ -31,6 +33,7 @@ jobs:
       - name: Validar Python e sintaxe shell
         run: |
           python3 -m py_compile pocket/experiments/libreon-engine-lab/*.py
+          bash -n pocket/experiments/libreon-engine-lab/prepare-upstream.sh
           bash -n pocket/experiments/libreon-engine-lab/build-upstream.sh
       - name: Reproduzir checkout livre fixado
         run: |
@@ -75,3 +78,9 @@ jobs:
           assert 'height(56.dp)' in ui
           print('UX pt-BR e pontes UNO verificadas sem instalar Android.')
           PY
+      - name: Confirmar isolamento da identidade preview
+        run: |
+          cd upstream-libreon
+          python3 ../pocket/experiments/libreon-engine-lab/patch-preview-identity.py
+          grep -F 'applicationId = "com.ladyrachelsouza.ladywriter.pocket.preview"' app/build.gradle.kts
+          ! grep -F 'applicationId = "com.ladyrachelsouza.ladywriter.pocket"' app/build.gradle.kts
