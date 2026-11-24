@@ -6,6 +6,8 @@ on:
     branches: [fix/ime-pagebreak-ptbr-20261124]
     paths:
       - '.github/workflows/build-preview.yml'
+      - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
   workflow_dispatch:
 
 permissions:
