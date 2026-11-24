@@ -1,0 +1,41 @@
+name: Pocket - Documento ODT fictício para testar no telefone
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fixture-odt.yml'
+      - 'pocket/tests/generate-variable-fixture.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gerar e verificar ODT artificial
+        run: |
+          set -euo pipefail
+          mkdir -p test-documents
+          python3 pocket/tests/generate-variable-fixture.py test-documents/Pocket-Exemplo-Ficticio.odt
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          p=Path("test-documents/Pocket-Exemplo-Ficticio.odt")
+          assert p.stat().st_size > 1000
+          with ZipFile(p) as z:
+              assert z.read("mimetype") == b"application/vnd.oasis.opendocument.text"
+              assert b"Dia Um" in z.read("content.xml")
+          print("Fixture artificiosa verificada sem dados pessoais.")
+          PY
+          sha256sum test-documents/Pocket-Exemplo-Ficticio.odt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pocket-ODT-EXEMPLO-FICTICIO
+          path: test-documents/Pocket-Exemplo-Ficticio.odt
+          retention-days: 14
+          if-no-files-found: error
