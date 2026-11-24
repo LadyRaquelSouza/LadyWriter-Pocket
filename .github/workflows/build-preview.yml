@@ -43,6 +43,10 @@ jobs:
         run: bash pocket/experiments/libreon-engine-lab/prepare-upstream.sh
       - name: Incorporar fontes redistribuíveis verificadas e licenças OFL
         run: bash pocket/experiments/libreon-engine-lab/prepare-fonts-arapey.sh
+      - name: Verificar patches Kotlin antes da compilação
+        run: |
+          python3 -m py_compile pocket/experiments/libreon-engine-lab/*.py
+          test -f pocket/experiments/libreon-engine-lab/patch-editorial-ux.py
       - name: Compilar prévia sem assinatura privada
         env:
           POCKET_BUILD_MODE: preview
