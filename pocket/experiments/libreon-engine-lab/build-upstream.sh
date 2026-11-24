@@ -50,9 +50,20 @@ python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-variable-inventory.py
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-variable-engine-probe.py"
 python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-native-command-probe.py"
 
-# Identidade, versionCode e assinatura sao fixados a partir de GitHub Secrets.
-# Falha fechada se a chave nao foi configurada; nunca volta ao debug efemero.
-python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-stable-signing.py"
+# Prévia pública é outro pacote e não precisa de nenhuma credencial.
+# Stable continua falhando sem o certificado ORIGINAL; nunca fazer fallback.
+case "${POCKET_BUILD_MODE:-stable}" in
+  preview)
+    python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-preview-identity.py"
+    ;;
+  stable)
+    python3 "$ROOT/pocket/experiments/libreon-engine-lab/patch-stable-signing.py"
+    ;;
+  *)
+    echo "POCKET_BUILD_MODE invalido: use preview ou stable" >&2
+    exit 1
+    ;;
+esac
 bash ./gradlew --no-daemon --stacktrace --max-workers=2 :app:assembleDebug
 echo "APK(s) localizados:"
 find app/build/outputs/apk/debug -name '*.apk' -printf '%p %s bytes\n'
