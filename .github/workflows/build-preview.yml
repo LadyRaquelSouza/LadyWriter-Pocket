@@ -8,6 +8,8 @@ on:
       - '.github/workflows/build-preview.yml'
       - 'pocket/experiments/libreon-engine-lab/patch-editorial-ux.py'
       - 'pocket/experiments/libreon-engine-lab/patch-localize-ptbr.py'
+      - 'pocket/experiments/libreon-engine-lab/patch-variable-inventory.py'
+      - 'pocket/tests/generate-variable-fixture.py'
   workflow_dispatch:
 
 permissions:
