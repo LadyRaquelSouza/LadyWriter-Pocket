@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108" role="img" aria-label="LadyWriter Pocket: ponta de caneta sobre duas folhas discretas">
+  <rect width="108" height="108" rx="24" fill="#22162E"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M20 76 Q33 72 46 81 M88 76 Q75 72 62 81" stroke="#9477B8" stroke-width="2"/>
+    <path d="M23 82 Q36 79 46 86 M85 82 Q72 79 62 86" stroke="#B8A1DF" stroke-width="1.3"/>
+  </g>
+  <path d="M41 24 Q54 20 67 24 L74 39 Q72 56 64 72 L54 90 L44 72 Q36 56 34 39 Z" fill="#E8D8F6"/>
+  <path d="M54 23 Q62 22 67 24 L74 39 Q72 56 64 72 L54 90 L54 56 Z" fill="#B8A1DF"/>
+  <path d="M41 24 Q54 20 67 24 L65 31 Q54 28 43 31 Z" fill="#D9B58E"/>
+  <circle cx="54" cy="49" r="5" fill="#251831"/>
+  <path d="M54 53 L54 84" stroke="#251831" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M40 40 Q40 54 48 68" fill="none" stroke="#FCF5FF" stroke-width="1.3" stroke-linecap="round"/>
+</svg>
