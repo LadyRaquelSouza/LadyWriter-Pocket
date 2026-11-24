@@ -27,6 +27,12 @@ As variáveis ODT e o sumário são funcionalidades planejadas, **não recursos 
 - `pocket/branding/`: identidade visual.
 - `.github/workflows/validate-pocket.yml`: CI de patches **sem chaves de assinatura**, permitido em contribuições públicas.
 
+## Builds de prévia pelo GitHub Actions
+
+O workflow manual `Pocket - APK de prévia pública sem secrets` recompila o editor a partir do Libreon e gera um APK debug para `com.ladyrachelsouza.ladywriter.pocket.preview`. **É um aplicativo de teste separado**, não atualiza a versão `com.ladyrachelsouza.ladywriter.pocket` existente no telefone, e a assinatura temporária não serve para distribuição permanente. O fluxo depende da confirmação de compilação Android, que não é provada pelos testes estáticos de patches. Nunca abrir documentos pessoais únicos na prévia; usar uma cópia.
+
+Por segurança, o build permanece exclusivamente manual na branch padrão, sem `secrets`. Antes de liberar o workflow, revisar o código da PR e integrar a fundação independente.
+
 ## Privacidade e assinatura
 
 Nenhum manuscrito, credencial, keystore, artefato sensível ou histórico do repositório privado deve ser adicionado. **Não existe workflow público de geração de chave de assinatura.** A assinatura atual do Pocket deve permanecer em cofre restrito; uma nova chave arbitrária não atualizaria o aplicativo instalado. Não executar builds de PRs externos com secrets.
