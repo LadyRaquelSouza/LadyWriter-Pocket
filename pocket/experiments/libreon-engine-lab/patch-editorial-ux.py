@@ -59,6 +59,7 @@ patch(document,
             "center" -> ".uno:CenterPara"
             "right" -> ".uno:RightPara"
             "justify" -> ".uno:JustifyPara"
+            "pagebreak" -> ".uno:InsertPagebreak"
             else -> return
         }
         sendPocketUno(uno)
@@ -70,7 +71,8 @@ patch(document,
       '''            ".uno:InsertFieldCtrl", ".uno:UpdateFields", ".uno:UpdateAllIndexes"''',
       '''            ".uno:InsertFieldCtrl", ".uno:UpdateFields", ".uno:UpdateAllIndexes",
             ".uno:Bold", ".uno:Italic", ".uno:SmallCaps", ".uno:LeftPara",
-            ".uno:CenterPara", ".uno:RightPara", ".uno:JustifyPara"''')
+            ".uno:CenterPara", ".uno:RightPara", ".uno:JustifyPara",
+            ".uno:InsertPagebreak"''')
 
 patch(session,
       "    fun openPocketFields() {",
@@ -104,7 +106,7 @@ patch(ui,
     val pocketImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val pocketKeyboardController = LocalSoftwareKeyboardController.current
     val pocketAndroidView = LocalView.current
-    BackHandler(enabled = pocketImeVisible) {
+    BackHandler(enabled = pocketImeVisible && active != null) {
         pocketKeyboardController?.hide()
         val input = pocketAndroidView.context.getSystemService(
             android.content.Context.INPUT_METHOD_SERVICE
@@ -173,6 +175,11 @@ bar = '''        bottomBar = {
                                 modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                                 contentPadding = PaddingValues(horizontal = 3.dp),
                             ) { Text("Sumário", maxLines = 1) }
+                            OutlinedButton(
+                                onClick = { pocketOfficeSession.pocketQuickFormat("pagebreak") },
+                                modifier = Modifier.weight(1.4f).heightIn(min = 52.dp),
+                                contentPadding = PaddingValues(horizontal = 1.dp),
+                            ) { Text("Quebra\\nde página", maxLines = 2, textAlign = TextAlign.Center) }
                         }
                         Row(
                             Modifier.fillMaxWidth(),
@@ -221,6 +228,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.foundation.layout.fillMaxSize""")
 
@@ -311,4 +319,11 @@ body[data-docType='text'] #mobile-wizard .ui-treeview-entry {
 }
 """)
 
-print("Pocket: barra editorial com estilos, variaveis, sumario, B/I/versalete/alinhamento + alvos 48dp.")
+patch(ui,
+      "    BackHandler(enabled = active != null) { showHome = true }",
+      "    BackHandler(enabled = active != null && !pocketImeVisible) { showHome = true }")
+patch(ui,
+      "    BackHandler(enabled = fullScreen) { fullScreen = false }",
+      "    BackHandler(enabled = fullScreen && !pocketImeVisible) { fullScreen = false }")
+
+print("Pocket: Voltar prioriza IME; quebra de pagina acessivel.")
