@@ -1,6 +1,12 @@
 name: Pocket - APK de prévia pública sem secrets
 
 on:
+  # Gera a primeira prévia ao atualizar este workflow na main.
+  # Alterações futuras de código são compiladas pelo acionamento manual.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-preview.yml'
   workflow_dispatch:
 
 permissions:
