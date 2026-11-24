@@ -1,0 +1,27 @@
+name: Pocket - Provar variáveis posicionais no Writer
+
+on:
+  push:
+    branches: [feat/variable-assignments-writer-proof-20261124]
+    paths:
+      - '.github/workflows/prove-variable-semantics.yml'
+      - 'pocket/tests/prove-positional-header.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Writer e bridge UNO de testes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libreoffice-writer python3-uno poppler-utils
+      - name: Verificar sintaxe
+        run: /usr/bin/python3 -m py_compile pocket/tests/prove-positional-header.py
+      - name: Testar atribuições, cabeçalho e edição localizada
+        run: /usr/bin/python3 pocket/tests/prove-positional-header.py
