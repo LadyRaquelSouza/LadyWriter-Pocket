@@ -81,6 +81,20 @@ patch(session,
 
     fun openPocketFields() {""")
 
+# O campo fullScreen upstream é declarado DEPOIS dos controles editoriais.
+# Kotlin não permite a referência local antes da declaração; trazê-lo para o
+# início do escopo mantém o mesmo estado e preserva BackHandler/FullScreenEffect.
+patch(ui,
+      "    var showPocketFields by remember { mutableStateOf(false) }",
+      """    var fullScreen by remember { mutableStateOf(false) }
+    var showPocketFields by remember { mutableStateOf(false) }""")
+patch(ui,
+      """    // Full-screen reading: the bars go, and back (or the button in the corner) brings them back.
+    var fullScreen by remember { mutableStateOf(false) }
+    if (active == null) fullScreen = false""",
+      """    // Full-screen reading: the bars go, and back (or the button in the corner) brings them back.
+    if (active == null) fullScreen = false""")
+
 patch(ui,
       "    var showPocketFields by remember { mutableStateOf(false) }",
       """    var showPocketFields by remember { mutableStateOf(false) }
