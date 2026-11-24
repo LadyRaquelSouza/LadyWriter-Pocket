@@ -179,7 +179,7 @@ bar = '''        bottomBar = {
                                 onClick = { pocketOfficeSession.pocketQuickFormat("pagebreak") },
                                 modifier = Modifier.weight(1.4f).heightIn(min = 52.dp),
                                 contentPadding = PaddingValues(horizontal = 1.dp),
-                            ) { Text("Quebra\\nde página", maxLines = 2, textAlign = TextAlign.Center) }
+                            ) { Text("Quebra\nde página", maxLines = 2, textAlign = TextAlign.Center) }
                         }
                         Row(
                             Modifier.fillMaxWidth(),
