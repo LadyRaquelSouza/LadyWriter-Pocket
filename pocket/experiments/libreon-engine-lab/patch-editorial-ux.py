@@ -147,8 +147,9 @@ bar = '''        bottomBar = {
                     Column(
                         Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
-                        if (!pocketImeVisible) {
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        // O teclado não deve tornar Estilos/Variáveis inacessíveis.
+                        // Com IME aberta, só a linha de formatação rápida é ocultada.
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                                 TextButton(
                                     onClick = { pocketBarCollapsed = !pocketBarCollapsed },
                                     modifier = Modifier.heightIn(min = 40.dp),
@@ -156,8 +157,7 @@ bar = '''        bottomBar = {
                                     Text(if (pocketBarCollapsed) "Mostrar ferramentas ▴" else "Recolher ferramentas ▾")
                                 }
                             }
-                        }
-                        if (!pocketImeVisible && !pocketBarCollapsed) {
+                        if (!pocketBarCollapsed) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             OutlinedButton(
                                 onClick = { pocketStyleSearch = ""; showPocketStyles = true },
@@ -181,6 +181,7 @@ bar = '''        bottomBar = {
                                 contentPadding = PaddingValues(horizontal = 1.dp),
                             ) { Text("Quebra\\nde página", maxLines = 2, textAlign = TextAlign.Center) }
                         }
+                        if (!pocketImeVisible) {
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -204,6 +205,7 @@ bar = '''        bottomBar = {
                                 modifier = Modifier.weight(1.45f).heightIn(min = 48.dp),
                                 contentPadding = PaddingValues(horizontal = 2.dp),
                             ) { Text("Alinhar", maxLines = 1) }
+                        }
                         }
                         }
                     }
